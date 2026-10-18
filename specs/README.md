@@ -27,7 +27,7 @@ even after the requirement it named is retired. A retired requirement keeps
 its heading, with ` (withdrawn)` appended to the title, so the ID remains
 visible in the document rather than disappearing.
 
-Two body annotations cover requirements that are not backed by an ordinary
+Three body annotations cover requirements that are not backed by an ordinary
 code citation:
 
 - `**Traceability:** exempt — <reason>` marks a prose requirement that has no
@@ -35,6 +35,10 @@ code citation:
   other specs uphold).
 - `**Traceability:** pending — <reason>` marks a requirement that is intended
   but not yet realised in the implementation.
+- `**Traceability:** documentation — <file>` marks a requirement whose
+  deliverable is documentation, such as a section a README must have. Such
+  a requirement is cited by the named Markdown file, and by no other
+  Markdown file.
 
 A `pending` requirement is not a one-time note: `make spec-check` reports
 every pending requirement and marks it in the traceability index on every
@@ -49,7 +53,8 @@ requirement mentioned for context is named by its spec, not its ID. Those
 IDs are what `make spec-check` reads and what the traceability index is
 built from. Documentation may cite a requirement too, but a citation in a
 Markdown file does not count as realising it: a requirement cited only by
-documentation is uncited.
+documentation is uncited, unless it is annotated `documentation` and the
+citation is in the file the annotation names.
 
 Specs may name code. `**Verified:**` notes and `design.md` files name files,
 tests and task names where that is the clearest way to state a fact. They
@@ -68,7 +73,7 @@ path and the IDs of this spec that the path realises or tests.
   prefixes that the file cites.
 - Every file the scan reads that cites an ID of this spec has a row, except
   Markdown files, which document a requirement and neither need nor get one.
-- The row of a path the scan does not read, such as `pyproject.toml`, is
+- The row of a path the scan does not read, such as a directory, is
   checked only for the path's existence.
 - IDs are listed one by one, never as a range, so a search for an ID finds
   every row that names it.

@@ -72,7 +72,8 @@ its citations unknown.
 
 THE Spec Checker SHALL report every requirement that is neither exempt,
 pending nor withdrawn and that no scanned file other than a Markdown file
-cites.
+cites, counting for a requirement annotated `documentation` only the
+Markdown file the annotation names.
 
 **Why:** A requirement nothing cites is one nobody can find in the code, and
 nothing shows whether it holds. The annotations of `specs/README.md` §3 are
@@ -80,10 +81,16 @@ the only ways for a requirement to have no citation, and each of them says
 why. A citation in documentation does not count: a README line that
 restates a requirement nothing else cites would make it look realised and
 erase the gap `pending` exists to show. One repository stated this as a
-rule for its authors; the checker makes it hold everywhere.
+rule for its authors; the checker makes it hold everywhere. Some requirements
+are about documentation, such as a section a README must have, and for
+those the Markdown file is the realisation; the `documentation` annotation
+names that one file, so documentation still cannot stand in for code
+anywhere else.
 **Verified:** a tree with an uncited requirement fails and names it, and so
 does one whose only citation is in a `.md` file; the same tree with the
-requirement annotated `exempt` or `pending` passes.
+requirement annotated `exempt` or `pending` passes, and so does one
+annotated `documentation` with the named file citing it, but not one whose
+citation is in a different `.md` file.
 
 ### SPEC-3 — Every citation names a requirement
 
@@ -309,3 +316,15 @@ start, such as a `--spec` naming no registered spec or a missing
 configuration, is not the same as a tree that fails, and the caller should
 be able to tell.
 **Verified:** each of the three cases returns its status.
+
+### SPEC-22 — A documentation requirement names a scanned file
+
+THE Spec Checker SHALL report every requirement annotated `documentation`
+whose annotation names no file, or a file the scan does not read.
+
+**Why:** The annotation moves a requirement's realisation into one Markdown
+file. If that file is missing or never scanned, the requirement would be
+neither cited nor reported, and the annotation would hide the gap it was
+meant to make checkable.
+**Verified:** an annotation naming a missing file fails, and so does one
+naming a file outside the scan.

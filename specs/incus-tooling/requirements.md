@@ -169,13 +169,15 @@ fallback: an empty prefix matches every instance on the daemon. No module
 spells a prefix out, and `constants.py` holds none.
 
 The command line takes the prefix as a required `--prefix` option on every
-command. `create` passes it to `IncusVM`; `list` and `destroy --all` select
+command, and a base-image prefix as an optional `--base-image-prefix`. `create` passes it to `IncusVM`; `list` and `destroy --all` select
 only instances whose name starts with it; `destroy <name>` refuses a name
 that does not; and `ssh <name>` looks for a saved machine only under the
 prefix's temporary directories and refuses a name outside the prefix before
 falling back to `incus exec`. The fixture the package ships, `clean_vm`,
-takes the prefix from the consuming suite's pytest configuration and fails
-rather than skips when none is set, since a missing prefix is a mistake in
+takes the prefix from the consuming suite's pytest configuration, the
+`incus_prefix` ini option, and a base-image prefix from
+`incus_base_image_prefix` where one is set, and fails rather than skips
+when no prefix is set, since a missing prefix is a mistake in
 the suite, not an absent Incus (`INCUS-10`).
 
 The cleanup hints the toolkit prints, from `create` and from
