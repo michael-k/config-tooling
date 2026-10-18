@@ -3,6 +3,7 @@
 name = "config-tooling"
 version = "0.1.0"
 description = "Shared spec checker and Incus test toolkit for the configuration repositories"
+# PRJ-4
 requires-python = ">=3.14"
 dependencies = []
 
@@ -41,6 +42,7 @@ name = "PyPI"
 url = "https://pypi.org/simple"
 default = true
 
+# TEST-1: the tiers are the `unit` and `integration` markers over every test path.
 [tool.pytest.ini_options]
 testpaths = ["tests", "spec-check/tests", "incus/tests"]
 python_files = ["test_*.py"]
@@ -65,6 +67,9 @@ known-first-party = ["spec_check", "incus"]
 [tool.spec-check]
 scan = [
     "Makefile",
+    "pyproject.toml",
+    "incus/pyproject.toml",
+    "spec-check/pyproject.toml",
     "README.md",
     "incus/README.md",
     "spec-check/README.md",

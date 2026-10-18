@@ -9,6 +9,7 @@ index fails a check run), SPEC-20 (`--spec` scopes the checks) and SPEC-21
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -70,7 +71,7 @@ def test_a_scoped_run_leaves_the_index_untouched(clean_tree, capsys) -> None:
 
 
 def test_render_traceability_is_deterministic_and_marks_states() -> None:
-    def req(n: int, **kwargs: bool) -> Requirement:
+    def req(n: int, **kwargs: Any) -> Requirement:
         return Requirement(f"FOO-{n}", "FOO", n, f"T{n}", "foo", Path(INDEX), **kwargs)
 
     requirements = [req(10), req(2, pending=True), req(1, withdrawn=True)]

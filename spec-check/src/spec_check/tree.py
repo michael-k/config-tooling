@@ -20,6 +20,9 @@ _REQ_HEADING = re.compile(
 _WITHDRAWN_SUFFIX = " (withdrawn)"
 _EXEMPT_MARKER = "**Traceability:** exempt"
 _PENDING_MARKER = "**Traceability:** pending"
+_DOCUMENTATION = re.compile(
+    r"\*\*Traceability:\*\* documentation(?:\s*[—-]\s*`?(?P<file>[^`\s]+)`?)?"
+)
 
 REQUIRED_REQUIREMENTS_SECTIONS: tuple[str, ...] = (
     "Purpose",
@@ -54,6 +57,8 @@ class Requirement:
     withdrawn: bool = False
     exempt: bool = False
     pending: bool = False
+    # The Markdown file named by a `documentation` annotation; "" when it names none.
+    documentation: str | None = None
 
 
 def load_prefixes(readme: Path) -> dict[str, str]:
@@ -81,11 +86,13 @@ def parse_requirements(path: Path, spec: str) -> list[Requirement]:
         nonlocal current, body
         if current is not None:
             text = "\n".join(body)
+            doc = _DOCUMENTATION.search(text)
             found.append(
                 replace(
                     current,
                     exempt=_EXEMPT_MARKER in text,
                     pending=_PENDING_MARKER in text,
+                    documentation=None if doc is None else (doc["file"] or ""),
                 )
             )
         current, body = None, []

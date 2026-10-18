@@ -3,8 +3,9 @@
 Realises SPEC-2 (every requirement is cited by a file other than Markdown),
 SPEC-3 (every citation names a requirement), SPEC-4 (no citation of a
 withdrawn requirement), SPEC-5 (no citation of a pending requirement),
-SPEC-14 (nothing inside a submodule is read) and SPEC-16 (the superseded
-numbering is gone).
+SPEC-14 (nothing inside a submodule is read), SPEC-16 (the superseded
+numbering is gone) and SPEC-22 (a documentation requirement names a scanned
+file).
 """
 
 from __future__ import annotations
@@ -66,7 +67,18 @@ def find_citations(root: Path, files: list[Path], prefixes: dict[str, str]) -> C
     return citations
 
 
-def check_citations(requirements: list[Requirement], citations: Citations) -> list[Finding]:
+def _counts(req: Requirement, path: Path) -> bool:
+    """Whether a citation in `path` makes `req` cited (SPEC-2)."""
+    if not is_markdown(path):
+        return True
+    return bool(req.documentation) and path == Path(req.documentation)
+
+
+def check_citations(
+    requirements: list[Requirement],
+    citations: Citations,
+    scanned: list[Path] | None = None,
+) -> list[Finding]:
     """Flag citations without a live requirement, and requirements nothing cites."""
     by_id = {req.id: req for req in requirements}
     findings: list[Finding] = []
@@ -93,10 +105,22 @@ def check_citations(requirements: list[Requirement], citations: Citations) -> li
                 )
             )
 
+    scanned_set = set(scanned or ())
     for req in requirements:
         if req.withdrawn or req.exempt or req.pending:
             continue
-        if any(not is_markdown(path) for path in citations.get(req.id, ())):
+        if req.documentation is not None and (
+            not req.documentation or Path(req.documentation) not in scanned_set
+        ):
+            named = req.documentation or "no file"
+            findings.append(
+                Finding(
+                    "documentation-file-not-scanned",
+                    f"{req.id} is annotated documentation, but names {named}, "
+                    "which the scan does not read",
+                )
+            )
+        if any(_counts(req, path) for path in citations.get(req.id, ())):
             continue
         findings.append(
             Finding(

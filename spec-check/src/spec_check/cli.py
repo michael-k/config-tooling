@@ -72,7 +72,7 @@ def run_checks(
     full_requirements = load_all_requirements(specs_dir, all_prefixes)
     findings = [
         *check_ids(requirements),
-        *check_citations(requirements, citations),
+        *check_citations(requirements, citations, files),
         *check_structure(specs_dir, prefixes),
         *check_spec_markdown(specs_dir, prefixes),
         *check_implementation_map(root, specs_dir, prefixes, files, citations),

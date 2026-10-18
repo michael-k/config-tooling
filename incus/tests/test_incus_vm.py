@@ -8,6 +8,7 @@ command the package would have run, not on anything that ran.
 import json
 import socket
 import time
+from typing import cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -423,3 +424,31 @@ class TestEnsureBaseImage:
         publish_calls = [c for c in mock_run.call_args_list if "publish" in c[0][0]]
         assert len(publish_calls) == 1
         assert "user.upstream_fingerprint=new456" in publish_calls[0][0][0]
+
+
+class _FakeConfig:
+    """Stands in for ``pytest.Config``: ``getini`` raises for an unregistered option."""
+
+    def __init__(self, ini: dict[str, str]) -> None:
+        self._ini = ini
+
+    def getini(self, name: str) -> str:
+        if name not in self._ini:
+            raise ValueError(name)
+        return self._ini[name]
+
+
+@pytest.mark.parametrize(
+    ("ini", "expected"),
+    [
+        ({}, None),
+        ({"incus_base_image_prefix": ""}, None),
+        ({"incus_base_image_prefix": "acme/base-"}, "acme/base-"),
+    ],
+)
+def test_clean_vm_takes_a_base_image_prefix_from_the_suite(ini, expected) -> None:
+    """INCUS-1: the cache alias prefix is the suite's own where it sets one."""
+    from incus.fixtures import configured_base_image_prefix
+
+    config = cast(pytest.Config, _FakeConfig(ini))
+    assert configured_base_image_prefix(config) == expected

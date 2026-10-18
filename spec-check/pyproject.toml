@@ -1,8 +1,10 @@
+# PRJ-1: a package of its own, built from this directory alone.
 [project]
 name = "spec-check"
 version = "0.1.0"
 description = "Spec traceability checker for authoritative spec trees"
 readme = "README.md"
+# PRJ-4
 requires-python = ">=3.14"
 dependencies = []
 

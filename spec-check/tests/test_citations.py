@@ -3,11 +3,12 @@
 Covers SPEC-2 (every requirement is cited outside Markdown), SPEC-3 (every
 citation names a requirement), SPEC-4 (no citation of a withdrawn
 requirement), SPEC-5 (no citation of a pending requirement), SPEC-14
-(nothing inside a submodule is read) and SPEC-16 (the superseded numbering
-is gone).
+(nothing inside a submodule is read), SPEC-16 (the superseded numbering
+is gone) and SPEC-22 (a documentation requirement names a scanned file).
 """
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -19,7 +20,7 @@ from spec_check.citations import (
     read_submodules,
     scanned_files,
 )
-from spec_check.tree import Requirement
+from spec_check.tree import Requirement, parse_requirements
 
 pytestmark = pytest.mark.unit
 
@@ -27,7 +28,7 @@ pytestmark = pytest.mark.unit
 LEGACY = "Requirement 2" + ".3"
 
 
-def _req(req_id: str, **kwargs: bool) -> Requirement:
+def _req(req_id: str, **kwargs: Any) -> Requirement:
     prefix, number = req_id.split("-")
     source = Path("specs/s/requirements.md")
     return Requirement(req_id, prefix, int(number), "T", "s", source, **kwargs)
@@ -84,6 +85,44 @@ def test_a_markdown_citation_does_not_make_a_requirement_cited() -> None:
 
     assert [f.kind for f in findings] == ["orphan-requirement"]
     assert "FOO-1" in findings[0].message
+
+
+def _doc_req(req_id: str, doc: str) -> Requirement:
+    return Requirement(req_id, "FOO", 1, "title", "foo", Path("specs/foo/requirements.md"),
+                       documentation=doc)
+
+
+def test_a_documentation_requirement_is_cited_by_its_named_file() -> None:
+    req = _doc_req("FOO-1", "README.md")
+    scanned = [Path("README.md")]
+    assert check_citations([req], {"FOO-1": {Path("README.md")}}, scanned) == []
+
+
+def test_a_documentation_requirement_is_not_cited_by_another_markdown_file() -> None:
+    req = _doc_req("FOO-1", "README.md")
+    scanned = [Path("README.md"), Path("docs/a.md")]
+    findings = check_citations([req], {"FOO-1": {Path("docs/a.md")}}, scanned)
+    assert [f.kind for f in findings] == ["orphan-requirement"]
+
+
+# SPEC-22: the named file must be scanned.
+
+
+@pytest.mark.parametrize("doc", ["", "docs/missing.md"])
+def test_a_documentation_annotation_must_name_a_scanned_file(doc: str) -> None:
+    findings = check_citations([_doc_req("FOO-1", doc)], {}, [Path("README.md")])
+    assert "documentation-file-not-scanned" in [f.kind for f in findings]
+
+
+def test_the_documentation_annotation_is_parsed(tmp_path) -> None:
+    spec = tmp_path / "requirements.md"
+    spec.write_text(
+        "### FOO-1 — A section\n\nTHE Docs SHALL.\n\n"
+        "**Traceability:** documentation — `README.md`\n\n"
+        "### FOO-2 — Another\n\n**Traceability:** documentation\n"
+    )
+    reqs = parse_requirements(spec, "foo")
+    assert [r.documentation for r in reqs] == ["README.md", ""]
 
 
 @pytest.mark.parametrize("annotation", ["exempt", "pending", "withdrawn"])

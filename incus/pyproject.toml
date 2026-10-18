@@ -1,13 +1,16 @@
+# PRJ-1: a package of its own, built from this directory alone.
 [project]
 name = "incus"
 version = "0.1.0"
 description = "Incus VM lifecycle management for integration testing"
 readme = "README.md"
+# PRJ-4
 requires-python = ">=3.14"
 dependencies = [
     "pyyaml>=6.0",
 ]
 
+# INCUS-10: the `fixtures` extra makes `clean_vm` installable.
 [project.optional-dependencies]
 fixtures = ["pytest>=9.0"]
 
