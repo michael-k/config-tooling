@@ -1,0 +1,14 @@
+[project]
+name = "spec-check"
+version = "0.1.0"
+description = "Spec traceability checker for authoritative spec trees"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+spec-check = "spec_check.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.10"]
+build-backend = "uv_build"
