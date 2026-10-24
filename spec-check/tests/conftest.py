@@ -3,10 +3,16 @@
 Every tree lives under `tmp_path`, and every requirement ID in it uses a
 prefix this repository's registry does not hold (`FOO`, `BAR`), so nothing
 here is read as a citation of this repository's own requirements.
+
+Every tree is a git work tree, because the scan asks git what it ignores.
+Git's global and system configuration are switched off, so the
+excludes of whoever runs the tests change nothing.
 """
 
 from __future__ import annotations
 
+import os
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -63,6 +69,9 @@ class Tree:
     def read(self, relative: str) -> str:
         return (self.root / relative).read_text()
 
+    def git(self, *args: str) -> None:
+        git(self.root, *args)
+
     def registry(self, prefixes: dict[str, str]) -> None:
         rows = "".join(f"| `{p}` | `{s}` | `src/` |\n" for p, s in prefixes.items())
         self.write(
@@ -92,9 +101,20 @@ class Tree:
         return main(list(args))
 
 
+@pytest.fixture(autouse=True)
+def _isolated_git(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+
+
+def git(root: Path, *args: str) -> None:
+    subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True)
+
+
 @pytest.fixture
 def tree(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Tree:
-    """An empty tree under `tmp_path`."""
+    """An empty git work tree under `tmp_path`."""
+    git(tmp_path, "init", "-q")
     return Tree(tmp_path, monkeypatch)
 
 

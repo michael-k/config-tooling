@@ -42,7 +42,10 @@ rules themselves are the `SPEC` spec in this repository's
 
    Globs are relative to the repository root. Files inside any submodule
    listed in `.gitmodules`, including `config-tooling/` itself, are never
-   read, whatever the globs match (SPEC-14).
+   read, whatever the globs match (SPEC-14). Neither are files git ignores,
+   such as `__pycache__/` or a tool's cache, so a broad glob like
+   `scripts/**/*` is safe as long as `.gitignore` covers what tools generate
+   (SPEC-23). The check runs only in a git work tree (SPEC-24).
 
 4. Add the make target:
 
@@ -92,4 +95,4 @@ Every run prints the pending requirements of the specs it checked
 |---|---|
 | `0` | No findings. |
 | `1` | At least one finding; each is printed as `[kind] message`. |
-| `2` | It could not run as asked: no `specs/README.md`, a missing or empty `[tool.spec-check]` `scan`, or a `--spec` naming no registered spec (SPEC-21). |
+| `2` | It could not run as asked: no `specs/README.md`, a missing or empty `[tool.spec-check]` `scan`, a `--spec` naming no registered spec (SPEC-21), or no git work tree or no `git` (SPEC-24). |

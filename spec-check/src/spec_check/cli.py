@@ -3,7 +3,8 @@
 Realises SPEC-17 (pending requirements are listed on every run), SPEC-18 (the
 index is written after a clean full run), SPEC-19 (`--check` writes nothing
 and fails on a stale index), SPEC-20 (`--spec` scopes every check except the
-allowance pairing) and SPEC-21 (exit 0, 1 or 2).
+allowance pairing), SPEC-21 (exit 0, 1 or 2) and SPEC-24 (outside a git work
+tree the check does not run).
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from spec_check.allowances import (
     parse_allowance_register,
 )
 from spec_check.citations import (
+    NoWorkTreeError,
     check_citations,
     check_legacy_references,
     find_citations,
@@ -135,7 +137,11 @@ def main(argv: list[str] | None = None) -> int:
             return EXIT_UNUSABLE
         prefixes = {p: s for p, s in all_prefixes.items() if s in set(args.spec)}
 
-    result = run_checks(root, globs, prefixes, all_prefixes)
+    try:
+        result = run_checks(root, globs, prefixes, all_prefixes)
+    except NoWorkTreeError as error:
+        print(f"spec-check: {error}", file=sys.stderr)
+        return EXIT_UNUSABLE
     findings = list(result.findings)
     if args.check:
         findings += check_index(root, result.index, sorted(set(args.spec)) or None)

@@ -31,17 +31,17 @@ runs the same entry point.
 |---|---|
 | `spec-check/src/spec_check/config.py` | SPEC-15 |
 | `spec-check/src/spec_check/tree.py` | SPEC-1, SPEC-6, SPEC-7, SPEC-9 |
-| `spec-check/src/spec_check/citations.py` | SPEC-2, SPEC-3, SPEC-4, SPEC-5, SPEC-14, SPEC-16, SPEC-22 |
+| `spec-check/src/spec_check/citations.py` | SPEC-2, SPEC-3, SPEC-4, SPEC-5, SPEC-14, SPEC-16, SPEC-22, SPEC-23, SPEC-24 |
 | `spec-check/src/spec_check/allowances.py` | SPEC-8 |
 | `spec-check/src/spec_check/maps.py` | SPEC-10, SPEC-11, SPEC-12, SPEC-13 |
 | `spec-check/src/spec_check/index.py` | SPEC-18, SPEC-19 |
-| `spec-check/src/spec_check/cli.py` | SPEC-17, SPEC-18, SPEC-19, SPEC-20, SPEC-21 |
+| `spec-check/src/spec_check/cli.py` | SPEC-17, SPEC-18, SPEC-19, SPEC-20, SPEC-21, SPEC-24 |
 | `spec-check/tests/test_config.py` | SPEC-15, SPEC-21 |
 | `spec-check/tests/test_tree.py` | SPEC-1, SPEC-6, SPEC-7, SPEC-9 |
-| `spec-check/tests/test_citations.py` | SPEC-2, SPEC-3, SPEC-4, SPEC-5, SPEC-14, SPEC-16, SPEC-22 |
+| `spec-check/tests/test_citations.py` | SPEC-2, SPEC-3, SPEC-4, SPEC-5, SPEC-14, SPEC-16, SPEC-22, SPEC-23 |
 | `spec-check/tests/test_allowances.py` | SPEC-8, SPEC-20 |
 | `spec-check/tests/test_maps.py` | SPEC-10, SPEC-11, SPEC-12, SPEC-13 |
-| `spec-check/tests/test_cli.py` | SPEC-17, SPEC-18, SPEC-19, SPEC-20, SPEC-21 |
+| `spec-check/tests/test_cli.py` | SPEC-17, SPEC-18, SPEC-19, SPEC-20, SPEC-21, SPEC-24 |
 
 ## Key decisions
 

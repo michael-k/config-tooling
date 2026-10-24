@@ -4,13 +4,15 @@ Realises SPEC-2 (every requirement is cited by a file other than Markdown),
 SPEC-3 (every citation names a requirement), SPEC-4 (no citation of a
 withdrawn requirement), SPEC-5 (no citation of a pending requirement),
 SPEC-14 (nothing inside a submodule is read), SPEC-16 (the superseded
-numbering is gone) and SPEC-22 (a documentation requirement names a scanned
-file).
+numbering is gone), SPEC-22 (a documentation requirement names a scanned
+file), SPEC-23 (files git ignores are not read) and SPEC-24 (outside a git
+work tree the check does not run).
 """
 
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 from spec_check.config import expand_globs
@@ -20,6 +22,10 @@ _LEGACY_REF = re.compile(r"\bRequirements?:?\s+\d+\.\d+")
 _SUBMODULE_PATH = re.compile(r"^\s*path\s*=\s*(?P<path>.+?)\s*$")
 
 Citations = dict[str, set[Path]]
+
+
+class NoWorkTreeError(Exception):
+    """Git cannot say what it ignores, so the scan cannot run (SPEC-24)."""
 
 
 def is_markdown(path: Path) -> bool:
@@ -39,14 +45,40 @@ def read_submodules(root: Path) -> list[Path]:
     ]
 
 
+def ignored_by_git(root: Path, paths: list[Path]) -> set[Path]:
+    """Those of `paths` that git ignores in the work tree at `root` (SPEC-23).
+
+    Raises `NoWorkTreeError` when `git` is missing or `root` is no work tree
+    (SPEC-24).  A path inside a submodule makes `check-ignore` fail, so the
+    caller drops those first.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "check-ignore", "--stdin", "-z"],
+            input="".join(f"{path}\0" for path in paths),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        raise NoWorkTreeError("git is not installed; it decides which files are read") from None
+    # check-ignore exits 0 when it names a path, 1 when it names none.
+    if result.returncode not in (0, 1):
+        raise NoWorkTreeError(f"{root} is not a git work tree: {result.stderr.strip()}")
+    return {Path(name) for name in result.stdout.split("\0") if name}
+
+
 def scanned_files(root: Path, globs: tuple[str, ...]) -> list[Path]:
-    """The files the scan reads: every glob match outside every submodule (SPEC-14)."""
+    """The files the scan reads: every glob match outside every submodule
+    (SPEC-14) that git does not ignore (SPEC-23)."""
     submodules = read_submodules(root)
-    return [
+    outside = [
         path
         for path in expand_globs(root, globs)
         if not any(path == sub or sub in path.parents for sub in submodules)
     ]
+    ignored = ignored_by_git(root, outside)
+    return [path for path in outside if path not in ignored]
 
 
 def citation_pattern(prefixes: dict[str, str]) -> re.Pattern[str]:

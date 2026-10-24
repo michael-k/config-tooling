@@ -348,8 +348,6 @@ before it is staged.
 **Verified:** in a git work tree, a scan glob matching a tracked file, an
 untracked file and an ignored file reads the first two and not the third;
 a tracked file that an ignore pattern also matches is read.
-**Traceability:** pending — the scan reads every glob match outside a
-submodule.
 
 ### SPEC-24 — Outside a git work tree the check does not run
 
@@ -363,4 +361,3 @@ where nobody looks: a check that passes on an export and fails in the
 repository would be the worse outcome.
 **Verified:** a tree that is not a git work tree fails with exit status 2
 and a message naming the directory; so does a run with no `git` on `PATH`.
-**Traceability:** pending — the scan does not ask git.

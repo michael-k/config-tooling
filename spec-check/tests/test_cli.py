@@ -2,10 +2,12 @@
 
 Covers SPEC-17 (pending requirements are listed on every run), SPEC-18 (the
 index is written after a clean full run, and nothing else), SPEC-19 (a stale
-index fails a check run), SPEC-20 (`--spec` scopes the checks) and SPEC-21
-(the exit status says what happened).
+index fails a check run), SPEC-20 (`--spec` scopes the checks), SPEC-21
+(the exit status says what happened) and SPEC-24 (outside a git work tree
+the check does not run).
 """
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -208,3 +210,22 @@ def test_python_dash_m_runs_the_same_entry_point(clean_tree) -> None:
 
     assert result.returncode == 1
     assert "[stale-index]" in result.stdout
+
+
+# SPEC-24: no work tree, no check.
+
+
+def test_outside_a_git_work_tree_the_check_does_not_run(clean_tree, capsys) -> None:
+    shutil.rmtree(clean_tree.root / ".git")
+    before = clean_tree.snapshot()
+
+    assert clean_tree.run() == 2
+    assert f"{clean_tree.root} is not a git work tree" in capsys.readouterr().err
+    assert clean_tree.snapshot() == before
+
+
+def test_without_git_the_check_does_not_run(clean_tree, capsys, monkeypatch, tmp_path_factory):
+    monkeypatch.setenv("PATH", str(tmp_path_factory.mktemp("empty-path")))
+
+    assert clean_tree.run() == 2
+    assert "git is not installed" in capsys.readouterr().err

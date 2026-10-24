@@ -4,7 +4,8 @@ Covers SPEC-2 (every requirement is cited outside Markdown), SPEC-3 (every
 citation names a requirement), SPEC-4 (no citation of a withdrawn
 requirement), SPEC-5 (no citation of a pending requirement), SPEC-14
 (nothing inside a submodule is read), SPEC-16 (the superseded numbering
-is gone) and SPEC-22 (a documentation requirement names a scanned file).
+is gone), SPEC-22 (a documentation requirement names a scanned file) and
+SPEC-23 (files git ignores are not read).
 """
 
 from pathlib import Path
@@ -255,6 +256,43 @@ def test_nothing_inside_a_submodule_is_read(clean_tree, capsys) -> None:
     assert clean_tree.run() == 0
     assert "tooling/" not in capsys.readouterr().out
     assert "src/tooling/" not in clean_tree.read("specs/_traceability.md")
+
+
+# SPEC-23: files git ignores.
+
+
+def test_files_git_ignores_are_not_read(clean_tree, capsys) -> None:
+    clean_tree.write(".gitignore", "__pycache__/\n*.cache.py\n")
+    clean_tree.write("src/tracked.py", "# FOO-1\n")
+    clean_tree.write("src/__pycache__/foo.cpython-314.pyc", "FOO-1 FOO-77\n")
+    clean_tree.write("src/stale.cache.py", "# FOO-77\n")
+    clean_tree.git("add", "src/tracked.py")
+    rows = {"src/foo.py": "FOO-1", "src/tracked.py": "FOO-1"}
+    clean_tree.spec("foo", clean_tree.requirement("FOO-1"), rows)
+
+    assert scanned_files(clean_tree.root, ("src/**/*",)) == [
+        Path("src/foo.py"),
+        Path("src/tracked.py"),
+    ]
+    clean_tree.scan("src/**/*")
+    assert clean_tree.run() == 0
+    assert "FOO-77" not in capsys.readouterr().out
+
+
+def test_a_tracked_file_an_ignore_pattern_matches_is_read(clean_tree) -> None:
+    clean_tree.write(".gitignore", "*.py\n")
+    clean_tree.git("add", "--force", "src/foo.py")
+
+    assert scanned_files(clean_tree.root, ("src/**/*.py",)) == [Path("src/foo.py")]
+
+
+def test_the_ignore_rules_in_nested_files_and_info_exclude_count(clean_tree) -> None:
+    clean_tree.write("src/.gitignore", "nested.py\n")
+    clean_tree.write(".git/info/exclude", "excluded.py\n")
+    clean_tree.write("src/nested.py", "# FOO-1\n")
+    clean_tree.write("src/excluded.py", "# FOO-1\n")
+
+    assert scanned_files(clean_tree.root, ("src/**/*.py",)) == [Path("src/foo.py")]
 
 
 # SPEC-16: the superseded numbering.
