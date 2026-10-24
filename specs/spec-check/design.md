@@ -11,16 +11,16 @@ becomes the `--check` mode (`SPEC-19`). One repository's check that a
 pending requirement is not cited (`SPEC-5`) becomes everyone's. Everything else
 behaves as the copies did.
 
-A run starts in the current directory, which is the repository's root:
-the make target runs it from there. It reads `[tool.spec-check]` from
+A run starts in the current directory, which is the repository's root: the
+make target runs it from there. It reads `[tool.spec-check]` from
 `pyproject.toml` with `tomllib`, the registry from `specs/README.md`, and
 every `requirements.md` and `design.md` of a registered spec. It expands the
-`scan` globs, drops every path inside a submodule listed in `.gitmodules`,
-and finds citations in what remains with one pattern built from the
-registered prefixes, so an ID with an unregistered prefix is not a
-citation at all. Each check returns findings; the command line prints them
-sorted, prints the pending list, and then writes, compares or leaves the
-index.
+`scan` globs, drops every path git ignores (`SPEC-23`) and every path inside
+a submodule listed in `.gitmodules`, and finds citations in what remains
+with one pattern built from the registered prefixes, so an ID with an
+unregistered prefix is not a citation at all. Each check returns findings;
+the command line prints them sorted, prints the pending list, and then
+writes, compares or leaves the index.
 
 The package installs a `spec-check` command, and `python -m spec_check`
 runs the same entry point.
@@ -62,8 +62,8 @@ lets a map name configuration that realises a requirement without carrying
 an ID.
 
 **Submodules come from `.gitmodules`.** The file lists every submodule's
-path, it is committed, and reading it needs no `git` process. A path inside
-any listed submodule is dropped before any check sees it.
+path and is committed. A path inside any listed submodule is dropped
+before any check sees it.
 
 **A range is `…`, or a dash between two IDs.** The tree's templates used
 `XFR-1 … XFR-6`; any row whose ID column holds `…`, or an ID followed by a
@@ -71,9 +71,23 @@ dash or an en dash and another ID, is a range.
 
 **No built-in scan list.** The previous copies each had their own list in
 code; making the list configuration means it is visible in one place in
-each repository and the same shape everywhere. There is no exclusion list:
-the only file every copy excluded was the checker's own test module, which
-now lives here and uses unregistered prefixes for its fixtures (`TEST-2`).
+each repository and the same shape everywhere. There is no configured
+exclusion list: the only file every copy excluded was the checker's own test
+module, which now lives here and uses unregistered prefixes for its fixtures
+(`TEST-2`). What is not a source is already listed, in each consumer's
+ignore rules (`SPEC-23`).
+
+**Git decides what is not a source.** The scan passes its glob matches
+to `git check-ignore --stdin` and drops every path it names (`SPEC-23`).
+Asking `git` rather than parsing `.gitignore` applies every rule git
+applies, nested ignore files, `.git/info/exclude` and the user's global
+excludes included, and covers the caches that carry their own
+`.gitignore`, such as mypy's and ruff's, without the consumer listing
+them. `check-ignore` does not name a tracked file even when a pattern
+matches it, which is git's own meaning of ignored. A submodule's files are
+dropped by its own filter (`SPEC-14`), not by this one. The checker's
+tests build their trees in temporary directories and run `git init` in
+each (`TEST-2`).
 
 **Pass or fail, then write.** The index is written only after a clean full
 run (`SPEC-18`), so a committed index always comes from a tree that passed.
@@ -88,6 +102,12 @@ pre-commit check use (`SPEC-19`).
 - A file that cites an ID for context rather than realisation gets a row it
   should not have, because the checker cannot tell the two apart. The rule
   against such citations is `specs/README.md` §4's; holding it is review's.
+- A cache or build directory a consumer forgot to ignore is read, and its
+  copies of IDs show as citations in files no map lists. The fix is the
+  consumer's ignore rule, which `git status` was already asking for.
+- `git` is missing, or the checker runs outside a work tree, such as an
+  exported tarball. The run fails with exit status 2 (`SPEC-24`, `SPEC-21`)
+  rather than reading everything.
 - A scan glob that matches nothing is silent: the checker reports what it
   found, not what it was told to look for. A misspelt glob shows only as
   requirements that become uncited.

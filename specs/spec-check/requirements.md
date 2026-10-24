@@ -247,7 +247,8 @@ directory it forgot. A configured list is visible in one place and
 comparable across repositories, and a missing one is a failure, because a
 built-in default would be a list nobody chose.
 **Verified:** a tree with no `[tool.spec-check]` fails with a message
-naming the table; one with globs reads exactly the matched files.
+naming the table; one with globs reads exactly the matched files that
+`SPEC-23` admits.
 
 ### SPEC-16 — The superseded numbering is gone
 
@@ -328,3 +329,38 @@ neither cited nor reported, and the annotation would hide the gap it was
 meant to make checkable.
 **Verified:** an annotation naming a missing file fails, and so does one
 naming a file outside the scan.
+
+### SPEC-23 — Files git ignores are not read
+
+THE Spec Checker SHALL NOT read any scan glob match that git ignores.
+
+**Why:** Tools write generated files beside the sources: Python's
+`__pycache__`, the caches of pytest, mypy, ruff and Hypothesis, a
+virtual environment, installed collections. They carry copies of the
+sources' IDs, and a glob such as `scripts/**/*` reads them: a consumer
+passed `make spec-check` until its tests imported a script and left
+bytecode citing the script's IDs, which no map can list. A list of
+directories to skip would go stale with the next tool; the repository's
+ignore rules are already the list of what is not a source, and each
+consumer keeps them for `git status`. Leaving out only what git ignores,
+rather than reading only what git tracks, keeps a new file in the scan
+before it is staged.
+**Verified:** in a git work tree, a scan glob matching a tracked file, an
+untracked file and an ignored file reads the first two and not the third;
+a tracked file that an ignore pattern also matches is read.
+**Traceability:** pending — the scan reads every glob match outside a
+submodule.
+
+### SPEC-24 — Outside a git work tree the check does not run
+
+IF the repository it checks is not a git work tree, or `git` cannot be run,
+THEN THE Spec Checker SHALL fail without checking anything.
+
+**Why:** `SPEC-23` lets git decide what is a source. Without git there is
+no such answer, and falling back to every glob match would bring back the
+caches and copies `SPEC-23` keeps out, silently, on exactly the machine
+where nobody looks: a check that passes on an export and fails in the
+repository would be the worse outcome.
+**Verified:** a tree that is not a git work tree fails with exit status 2
+and a message naming the directory; so does a run with no `git` on `PATH`.
+**Traceability:** pending — the scan does not ask git.
