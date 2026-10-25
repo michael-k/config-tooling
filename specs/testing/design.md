@@ -2,10 +2,10 @@
 
 ## Approach
 
-Each package carries its tests next to its source: `spec-check/tests/` and
-`incus/tests/`, and the repository's own layout is checked by
-`tests/test_project.py`. The root `pyproject.toml` lists all three as pytest
-test paths and defines two markers, `unit` and `integration`; `make
+Each package carries its tests next to its source: `spec-check/tests/`,
+`incus/tests/` and `deploy-gate/tests/`, and the repository's own layout is
+checked by `tests/test_project.py`. The root `pyproject.toml` lists all four
+as pytest test paths and defines two markers, `unit` and `integration`; `make
 test-unit` selects the first and `make test-integration` the second, and
 `make test` runs both.
 

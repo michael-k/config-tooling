@@ -1,4 +1,4 @@
-# PRJ-1: the root is a workspace of the two packages, not a package itself.
+# PRJ-1: the root is a workspace of the three packages, not a package itself.
 [project]
 name = "config-tooling"
 version = "0.1.0"
@@ -18,6 +18,7 @@ lint = [
 ]
 test = [
   "pytest>=9.0.2",
+  "deploy-gate",
   "incus[fixtures]",
   "spec-check",
 ]
@@ -30,10 +31,11 @@ environments = [
 ]
 
 [tool.uv.workspace]
-members = ["incus", "spec-check"]
+members = ["deploy-gate", "incus", "spec-check"]
 
 # PRJ-6: the tree is checked by the workspace member, not a submodule.
 [tool.uv.sources]
+deploy-gate = { workspace = true }
 incus = { workspace = true }
 spec-check = { workspace = true }
 
@@ -44,7 +46,7 @@ default = true
 
 # TEST-1: the tiers are the `unit` and `integration` markers over every test path.
 [tool.pytest.ini_options]
-testpaths = ["tests", "spec-check/tests", "incus/tests"]
+testpaths = ["tests", "spec-check/tests", "incus/tests", "deploy-gate/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -62,7 +64,7 @@ target-version = "py314"
 select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["spec_check", "incus"]
+known-first-party = ["spec_check", "incus", "deploy_gate"]
 
 [tool.spec-check]
 scan = [
@@ -70,12 +72,16 @@ scan = [
     "pyproject.toml",
     "incus/pyproject.toml",
     "spec-check/pyproject.toml",
+    "deploy-gate/pyproject.toml",
     "README.md",
     "incus/README.md",
     "spec-check/README.md",
+    "deploy-gate/README.md",
     "incus/src/**/*.py",
     "incus/tests/**/*.py",
     "spec-check/src/**/*.py",
     "spec-check/tests/**/*.py",
+    "deploy-gate/src/**/*.py",
+    "deploy-gate/tests/**/*.py",
     "tests/**/*.py",
 ]

@@ -8,7 +8,7 @@ import pytest
 pytestmark = pytest.mark.unit
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGES = {"incus": "incus", "spec-check": "spec_check"}
+PACKAGES = {"incus": "incus", "spec-check": "spec_check", "deploy-gate": "deploy_gate"}
 
 
 def _project(directory: str) -> dict:

@@ -1,0 +1,18 @@
+# PRJ-1: a package of its own, built from this directory alone.
+# GATE-8: no `pytest11` entry point; a consumer names the plugin itself.
+[project]
+name = "deploy-gate"
+version = "0.1.0"
+description = "Refuses a deployment unless a complete integration run passed on its code"
+readme = "README.md"
+# PRJ-4
+requires-python = ">=3.14"
+# The plugin runs only inside the consumer's own pytest; the command needs none.
+dependencies = []
+
+[project.scripts]
+deploy-gate = "deploy_gate.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.10"]
+build-backend = "uv_build"

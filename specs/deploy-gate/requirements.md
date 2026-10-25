@@ -72,8 +72,6 @@ and an empty one would fingerprint nothing and open the gate on any change.
 empty `code` list, makes the command and the plugin fail with a message
 naming the table and the key.
 
-**Traceability:** pending — the package does not exist yet.
-
 ### GATE-2 — The integration tier is named by the consumer
 
 THE Deploy Gate SHALL take the marker that selects the integration tier
@@ -87,8 +85,6 @@ exactly why it must be said rather than assumed: a default that matches all
 of them today is one a fifth consumer inherits without noticing.
 **Verified:** a table without `marker`, or with an empty one, makes the
 command and the plugin fail with a message naming the key.
-
-**Traceability:** pending — the package does not exist yet.
 
 ### GATE-3 — The fingerprint covers the content, not a commit
 
@@ -108,8 +104,6 @@ any more, so it drops out of the fingerprint rather than breaking it.
 a `code` path makes the check refuse; changing a file outside every `code`
 path, or adding a file git ignores, does not.
 
-**Traceability:** pending — the package does not exist yet.
-
 ### GATE-4 — Only a complete, clean run records it
 
 WHEN a pytest session that selected the whole integration tier ends with
@@ -127,8 +121,6 @@ file; one with a skipped, failed or erroring integration test, one that
 exits non-zero for another reason, and one that ran no integration test
 leave it as it was.
 
-**Traceability:** pending — the package does not exist yet.
-
 ### GATE-5 — A narrowed session is not the whole tier
 
 THE Deploy Gate SHALL count a session as selecting the whole integration
@@ -145,8 +137,6 @@ every test, the tier included, so it counts.
 marker expression other than the configured marker or empty, records
 nothing even when every test it ran passed.
 
-**Traceability:** pending — the package does not exist yet.
-
 ### GATE-6 — The check refuses and names the reason
 
 THE Deploy Gate SHALL provide a `deploy-gate` command that exits non-zero,
@@ -162,8 +152,6 @@ tells the operator that the fix is the tier, not the gate.
 fingerprint, and non-zero with one of two distinct messages when the file is
 missing or holds another.
 
-**Traceability:** pending — the package does not exist yet.
-
 ### GATE-7 — No override
 
 THE Deploy Gate SHALL offer no option, environment variable or setting that
@@ -178,8 +166,6 @@ file by hand or run `ansible-playbook` directly; the gate is for the
 operator who forgot, and none of those is forgetting.
 **Verified:** the command's arguments and the package's configuration keys
 include nothing that changes its verdict.
-
-**Traceability:** pending — the package does not exist yet.
 
 ### GATE-8 — The consumer names the plugin
 
@@ -197,8 +183,6 @@ tolerate silently.
 that does not name the plugin neither reads `[tool.deploy-gate]` nor writes
 the file.
 
-**Traceability:** pending — the package does not exist yet.
-
 ### GATE-9 — Outside a git work tree the gate does not run
 
 IF the repository is not a git work tree, or `git` cannot be run, THEN THE
@@ -213,5 +197,3 @@ it.
 **Verified:** in a directory that is not a git work tree, and with no `git`
 on `PATH`, the command fails naming the cause, and a session that would
 otherwise record fails instead.
-
-**Traceability:** pending — the package does not exist yet.

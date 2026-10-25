@@ -30,6 +30,7 @@ commit in the consumer that moves the submodule.
 | `pyproject.toml` | PRJ-1, PRJ-4, PRJ-6 |
 | `incus/pyproject.toml` | PRJ-1, PRJ-4 |
 | `spec-check/pyproject.toml` | PRJ-1, PRJ-4 |
+| `deploy-gate/pyproject.toml` | PRJ-1, PRJ-4 |
 | `Makefile` | PRJ-4, PRJ-5, PRJ-6 |
 | `tests/test_project.py` | PRJ-1, PRJ-2 |
 | `incus/tests/test_incus_vm.py` | PRJ-3 |
@@ -38,7 +39,7 @@ commit in the consumer that moves the submodule.
 ## Key decisions
 
 **A submodule, not a git dependency.** `uv` can install a package straight
-from a subdirectory of a git URL, and that would cover both packages. It
+from a subdirectory of a git URL, and that would cover all three packages. It
 would not put anything else of the repository into a consumer's tree, and
 the follow-ups planned for it are not packages: the shared parts of
 `specs/README.md`, and a template for the configuration files the

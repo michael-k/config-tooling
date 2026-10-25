@@ -92,7 +92,7 @@ prefixes anywhere else.
 | `SPEC` | `spec-check` | `spec-check/` |
 | `INCUS` | `incus-tooling` | `incus/` |
 | `GATE` | `deploy-gate` | `deploy-gate/` |
-| `TEST` | `testing` | `spec-check/tests/`, `incus/tests/` |
+| `TEST` | `testing` | `spec-check/tests/`, `incus/tests/`, `deploy-gate/tests/` |
 
 `INV` and `ALW` are reserved for `specs/project/security-invariants.md` and
 are exempt from the orphan check — invariants are cited by specs, not by

@@ -51,6 +51,14 @@ deploy: …
 
 | Path | Realises |
 |---|---|
+| `deploy-gate/pyproject.toml` | GATE-8 |
+| `deploy-gate/src/deploy_gate/config.py` | GATE-1, GATE-2 |
+| `deploy-gate/src/deploy_gate/gate.py` | GATE-3, GATE-6, GATE-9 |
+| `deploy-gate/src/deploy_gate/cli.py` | GATE-6, GATE-7, GATE-9 |
+| `deploy-gate/src/deploy_gate/plugin.py` | GATE-1, GATE-2, GATE-4, GATE-5, GATE-9 |
+| `deploy-gate/tests/test_config.py` | GATE-1, GATE-2 |
+| `deploy-gate/tests/test_gate.py` | GATE-1, GATE-3, GATE-6, GATE-7, GATE-9 |
+| `deploy-gate/tests/test_plugin.py` | GATE-1, GATE-4, GATE-5, GATE-8, GATE-9 |
 
 ## Key decisions
 

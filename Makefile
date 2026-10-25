@@ -13,7 +13,7 @@ help:
 	@echo "  clean              Remove caches"
 
 # PRJ-4, PRJ-5: every target runs its tool through uv.
-# TEST-1: each tier is selected by marker over both packages' tests.
+# TEST-1: each tier is selected by marker over every package's tests.
 test:
 	uv run pytest $(ARGS)
 
@@ -26,10 +26,10 @@ test-integration:
 lint: python-lint python-typecheck spec-check
 
 python-lint:
-	uv run ruff check incus/ spec-check/ tests/
+	uv run ruff check incus/ spec-check/ deploy-gate/ tests/
 
 python-lint-fix:
-	uv run ruff check --fix incus/ spec-check/ tests/
+	uv run ruff check --fix incus/ spec-check/ deploy-gate/ tests/
 
 python-typecheck:
 	uv run ty check

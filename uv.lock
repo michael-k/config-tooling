@@ -11,6 +11,7 @@ supported-markers = [
 [manifest]
 members = [
     "config-tooling",
+    "deploy-gate",
     "incus",
     "spec-check",
 ]
@@ -22,6 +23,7 @@ source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
+    { name = "deploy-gate" },
     { name = "incus", extra = ["fixtures"] },
     { name = "pytest" },
     { name = "ruff" },
@@ -33,6 +35,7 @@ lint = [
     { name = "ty" },
 ]
 test = [
+    { name = "deploy-gate" },
     { name = "incus", extra = ["fixtures"] },
     { name = "pytest" },
     { name = "spec-check" },
@@ -42,6 +45,7 @@ test = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "deploy-gate", editable = "deploy-gate" },
     { name = "incus", extras = ["fixtures"], editable = "incus" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "ruff", specifier = ">=0.15.2" },
@@ -53,10 +57,16 @@ lint = [
     { name = "ty", specifier = ">=0.0.23" },
 ]
 test = [
+    { name = "deploy-gate", editable = "deploy-gate" },
     { name = "incus", extras = ["fixtures"], editable = "incus" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "spec-check", editable = "spec-check" },
 ]
+
+[[package]]
+name = "deploy-gate"
+version = "0.1.0"
+source = { editable = "deploy-gate" }
 
 [[package]]
 name = "incus"
