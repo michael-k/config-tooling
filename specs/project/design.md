@@ -2,12 +2,12 @@
 
 ## Approach
 
-The repository is a `uv` workspace with two members, `incus/` and
-`spec-check/`, each a package with its own `pyproject.toml`, `src/` layout
+The repository is a `uv` workspace with three members, `incus/`,
+`spec-check/` and `deploy-gate/`, each a package with its own `pyproject.toml`, `src/` layout
 and `tests/`. The root `pyproject.toml` declares the workspace, the
 development tools (ruff, ty, pytest) and this tree's own
 `[tool.spec-check]` scan; it is not a package itself. The root `Makefile`
-runs the tools over both members.
+runs the tools over every member.
 
 A consumer adds the repository as a submodule at `config-tooling/` and
 points `[tool.uv.sources]` at the members it uses:
@@ -16,6 +16,7 @@ points `[tool.uv.sources]` at the members it uses:
 [tool.uv.sources]
 incus = { path = "config-tooling/incus", editable = true }
 spec-check = { path = "config-tooling/spec-check", editable = true }
+deploy-gate = { path = "config-tooling/deploy-gate", editable = true }
 ```
 
 Its `make spec-check` then runs `uv run spec-check`, which reads the
@@ -84,7 +85,7 @@ is ready. A consumer that has not moved keeps working on the commit it pins.
 
 ## Interactions
 
-- `SPEC`, `INCUS`: the two packages this spec lays out.
+- `SPEC`, `INCUS`, `GATE`: the three packages this spec lays out.
 - `TEST`: the tests each package carries, run by the targets of `PRJ-5`.
 - `INV-1`: a consumer's checkout of this repository is a directory of that
   consumer; the checker never reads inside it (`SPEC-14`).

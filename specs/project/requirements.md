@@ -5,11 +5,13 @@
 ## Purpose
 
 Four repositories share a way of working: an authoritative spec tree
-checked by `make spec-check`, and integration tests that launch their own
-Incus machines. Each of them used to carry its own copy of the checker and
-reach the Incus toolkit inside one of them, and the copies drifted apart.
-This repository holds the one shared copy of both, and each of the four
-takes it in the same way and pins the version it uses. This spec states
+checked by `make spec-check`, integration tests that launch their own
+Incus machines, and a deployment that waits for those tests to pass. Each
+of them used to carry its own copy of the checker and reach the Incus
+toolkit inside one of them, and the copies drifted apart; the deployment
+gate existed in only one of them. This repository holds the one shared
+copy of all three, and each of the four takes it in the same way and pins
+the version it uses. This spec states
 what the repository is, how a consumer takes it in, and the tooling it
 offers its own developers.
 
@@ -17,7 +19,7 @@ offers its own developers.
 
 ### In scope
 
-- The two packages the repository provides and where they live.
+- The three packages the repository provides and where they live.
 - How a consuming repository takes them in and pins their version.
 - That the repository depends on nothing in any consumer.
 - The Python version, the environment and the make targets.
@@ -27,6 +29,7 @@ offers its own developers.
 
 - What the checker checks — `SPEC`'s.
 - What the toolkit offers — `INCUS`'s.
+- What the deploy gate checks — `GATE`'s.
 - This repository's own tests — `TEST`'s.
 - How a consumer configures its scan and runs its suites. That is each
   consumer's own spec; this spec states only what a consumer can rely on.
@@ -42,16 +45,19 @@ this spec states how the repository is laid out and taken in.
 
 ## Requirements
 
-### PRJ-1 — Two packages, installed separately
+### PRJ-1 — Three packages, installed separately
 
-THE Repository SHALL provide the `incus` toolkit and the `spec-check`
-checker as two packages, each installable on its own from its own directory,
-`incus/` and `spec-check/`.
+THE Repository SHALL provide the `incus` toolkit, the `spec-check` checker
+and the `deploy-gate` gate as three packages, each installable on its own
+from its own directory, `incus/`, `spec-check/` and `deploy-gate/`.
 
 **Why:** Every consumer runs the checker, but not every consumer has an
 integration tier, and the toolkit pulls in what the checker does not need.
-Two packages let a consumer take only what it uses, and let a change to one
-be bumped without touching the other's users.
+The gate needs neither of the other two: it reads git and pytest's reports,
+not machines or specs. Separate packages let a consumer take only what it
+uses, and let a change to one be bumped without touching the others'
+users. The requirement named two packages until the gate moved here from
+the consumer that had it.
 **Verified:** each directory carries its own `pyproject.toml`; `uv build`
 in either builds that package alone.
 
@@ -71,7 +77,8 @@ toolkit, worked only where that checkout happened to sit next to the
 consumer, and at whatever commit it happened to be.
 **Verified:** a consumer with `config-tooling` added at `config-tooling/`
 and `[tool.uv.sources]` pointing at `config-tooling/incus` and
-`config-tooling/spec-check` runs `uv sync`, `make test-unit` and
+`config-tooling/spec-check`, and `config-tooling/deploy-gate` where it
+uses the gate, runs `uv sync`, `make test-unit` and
 `make spec-check` from a fresh clone made with `--recurse-submodules`.
 
 ### PRJ-3 — Nothing from any consumer
@@ -86,8 +93,9 @@ consumer has a favourite, and the others inherit its defaults without
 noticing. A value only one consumer needs is that consumer's to pass in.
 **Verified:** the `INCUS-1` unit tests in `incus/tests/` show that the
 toolkit takes each project-specific value from its caller and falls back
-to none, and the checker reads its scan from the consumer's
-`[tool.spec-check]` (`SPEC-15`). This repository keeps no list of the
+to none, the checker reads its scan from the consumer's
+`[tool.spec-check]` (`SPEC-15`), and the gate reads its deployment code and
+marker from the consumer's `[tool.deploy-gate]` (`GATE-1`, `GATE-2`). This repository keeps no list of the
 consumers' names: such a list would name them, and it could never be
 complete. Each consumer knows its own names and defaults and can search
 its `config-tooling/` submodule for them.

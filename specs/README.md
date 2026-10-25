@@ -91,6 +91,7 @@ prefixes anywhere else.
 | `PRJ` | `project` | `pyproject.toml`, `Makefile` |
 | `SPEC` | `spec-check` | `spec-check/` |
 | `INCUS` | `incus-tooling` | `incus/` |
+| `GATE` | `deploy-gate` | `deploy-gate/` |
 | `TEST` | `testing` | `spec-check/tests/`, `incus/tests/` |
 
 `INV` and `ALW` are reserved for `specs/project/security-invariants.md` and
@@ -174,6 +175,7 @@ Named by requirement ID: what this spec assumes of others, and what others assum
 - [`project`](project/requirements.md) — What this repository is, how the repositories that use it take it in, and its tooling.
 - [`spec-check`](spec-check/requirements.md) — The spec checker every repository's `make spec-check` runs.
 - [`incus-tooling`](incus-tooling/requirements.md) — The Incus virtual-machine toolkit integration tests are built on.
+- [`deploy-gate`](deploy-gate/requirements.md) — The gate that refuses a deployment until a complete integration run has passed on its code.
 - [`testing`](testing/requirements.md) — This repository's own test suites.
 
 `project/security-invariants.md` holds the cross-cutting security invariants
