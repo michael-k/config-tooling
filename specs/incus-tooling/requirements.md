@@ -673,4 +673,3 @@ connection fails. Any other failure, an authentication failure or the
 remote command's own status, returns as it came. Unit tests in
 `TestIncusVMSSH` show the retry on a timed-out connection, no retry on an
 authentication failure, and no retry without a knock sequence.
-**Traceability:** pending — `ssh()` does not retry yet.

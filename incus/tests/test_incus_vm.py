@@ -291,7 +291,7 @@ _SSH_KEY = MagicMock(private_key_path="/tmp/fake/id_ed25519")
 
 
 class TestIncusVMSSH:
-    """INCUS-3: the path through sshd; INCUS-5: the automatic re-knock."""
+    """INCUS-3: the path through sshd; INCUS-5, INCUS-19: the automatic re-knock."""
 
     def test_ssh_builds_correct_command(self):
         vm = _vm(ssh_key=_SSH_KEY, ip_address="10.0.0.42")
@@ -353,6 +353,58 @@ class TestIncusVMSSH:
             vm.ssh("whoami")
 
         mock_knock.assert_not_called()
+
+    _TIMED_OUT = MagicMock(
+        returncode=255,
+        stdout="",
+        stderr="ssh: connect to host 10.0.0.42 port 2222: Connection timed out\n",
+    )
+
+    def test_ssh_knocks_and_retries_when_the_connection_fails(self):
+        """INCUS-19: the gate's window closed before the threshold said."""
+        vm = _vm(ssh_key=_SSH_KEY, ip_address="10.0.0.42", knock_sequence=[1111, 2222, 3333])
+        vm._last_knock_time = time.monotonic()
+
+        with (
+            patch("incus.vm.subprocess.run") as mock_run,
+            patch.object(vm, "knock") as mock_knock,
+        ):
+            mock_run.side_effect = [
+                self._TIMED_OUT,
+                MagicMock(returncode=0, stdout="ok", stderr=""),
+            ]
+            result = vm.ssh("whoami")
+
+        mock_knock.assert_called_once()
+        assert mock_run.call_count == 2
+        assert result.stdout == "ok"
+
+    def test_ssh_does_not_retry_other_failures(self):
+        """INCUS-19: only a connection that never came up is retried."""
+        vm = _vm(ssh_key=_SSH_KEY, ip_address="10.0.0.42", knock_sequence=[1111, 2222, 3333])
+        vm._last_knock_time = time.monotonic()
+
+        with (
+            patch("incus.vm.subprocess.run") as mock_run,
+            patch.object(vm, "knock") as mock_knock,
+        ):
+            mock_run.return_value = MagicMock(
+                returncode=255, stdout="", stderr="root@10.0.0.42: Permission denied (publickey).\n"
+            )
+            vm.ssh("whoami")
+
+        mock_knock.assert_not_called()
+        assert mock_run.call_count == 1
+
+    def test_ssh_does_not_retry_without_sequence(self):
+        """INCUS-19: no gate, nothing a knock could open."""
+        vm = _vm(ssh_key=_SSH_KEY, ip_address="10.0.0.42")
+
+        with patch("incus.vm.subprocess.run") as mock_run:
+            mock_run.return_value = self._TIMED_OUT
+            vm.ssh("whoami")
+
+        assert mock_run.call_count == 1
 
 
 def _build_side_effect(upstream_fp: str, existing: list):

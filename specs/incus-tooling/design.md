@@ -49,14 +49,14 @@ again, which nothing in the package can detect.
 
 | Path | Realises |
 |---|---|
-| `incus/src/incus/vm.py` | INCUS-1, INCUS-2, INCUS-3, INCUS-4, INCUS-5, INCUS-6, INCUS-8, INCUS-12, INCUS-13, INCUS-14, INCUS-15, INCUS-18 |
+| `incus/src/incus/vm.py` | INCUS-1, INCUS-2, INCUS-3, INCUS-4, INCUS-5, INCUS-6, INCUS-8, INCUS-12, INCUS-13, INCUS-14, INCUS-15, INCUS-18, INCUS-19 |
 | `incus/src/incus/ssh.py` | INCUS-1, INCUS-7, INCUS-8 |
 | `incus/src/incus/constants.py` | INCUS-18 |
 | `incus/src/incus/ansible.py` | INCUS-9, INCUS-17, INCUS-18 |
 | `incus/src/incus/fixtures.py` | INCUS-1, INCUS-10, INCUS-18 |
 | `incus/src/incus/__main__.py` | INCUS-1, INCUS-16, INCUS-18 |
 | `incus/src/incus/__init__.py` | INCUS-2, INCUS-7, INCUS-12, INCUS-13, INCUS-14 |
-| `incus/tests/test_incus_vm.py` | INCUS-1, INCUS-2, INCUS-3, INCUS-5, INCUS-8, INCUS-13, INCUS-14, INCUS-18 |
+| `incus/tests/test_incus_vm.py` | INCUS-1, INCUS-2, INCUS-3, INCUS-5, INCUS-8, INCUS-13, INCUS-14, INCUS-18, INCUS-19 |
 | `incus/tests/test_ssh_keypair.py` | INCUS-1, INCUS-7, INCUS-8 |
 | `incus/tests/test_ansible_helpers.py` | INCUS-9, INCUS-17 |
 | `incus/pyproject.toml` | INCUS-10 |

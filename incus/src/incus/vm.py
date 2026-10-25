@@ -465,12 +465,24 @@ class IncusVM:
         """Run a command on the VM via SSH using the ephemeral key.
 
         If a knock_sequence is configured, automatically port-knocks when the
-        last knock was more than 20 seconds ago (INCUS-5).
+        last knock was more than 20 seconds ago (INCUS-5), and knocks and
+        tries once more when the connection fails (INCUS-19).
         """
         if self.knock_sequence is not None:
             elapsed = time.monotonic() - self._last_knock_time
             if elapsed > 20:
                 self.knock()
+        result = self._ssh_once(cmd, timeout)
+        if (
+            self.knock_sequence is not None
+            and result.returncode == 255
+            and "ssh: connect to host" in result.stderr
+        ):
+            self.knock()
+            result = self._ssh_once(cmd, timeout)
+        return result
+
+    def _ssh_once(self, cmd: str, timeout: int) -> subprocess.CompletedProcess:
         return subprocess.run(
             [
                 "ssh",
