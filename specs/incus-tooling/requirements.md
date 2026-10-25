@@ -649,3 +649,28 @@ missing, edits `/etc/ssh/sshd_config` the same way for an SSH user of
 `ansible_python_interpreter: /usr/bin/python3` into every inventory it
 generates (`ansible.py`). A non-Debian image therefore launches and then
 fails in `wait_ready()`, or fails its first Ansible task.
+
+### INCUS-19 — A knock-gated machine that does not answer is knocked once more
+
+WHERE a knock sequence is configured on a machine, WHEN an SSH attempt
+cannot connect, THE Test Toolkit SHALL knock and make the attempt once more.
+
+**Why:** `INCUS-5`'s threshold measures from the toolkit's own last knock,
+and that is not always when the gate's window opened. A playbook that knocks
+for itself, as a consumer's first play may, puts the controller into the
+gate's passed set; a knock from the toolkit while that entry lives does not
+extend it, since re-knocking never does. The toolkit then counts twenty
+seconds from a knock the gate ignored while the entry it rode on expires,
+and the attempts in between time out against a closed port. Measured in a
+consumer's integration tier: the two tests after a full playbook run failed
+with `Connection timed out`, and the third, past the threshold, passed.
+Knocking again when the connection fails costs one sequence and one retry,
+and only where the threshold was wrong.
+**Verified:** `ssh()` (`vm.py`) retries once, after `knock()`, when a
+knock sequence is set and the first attempt exits with 255 and `ssh: connect
+to host` in its standard error, the message ssh prints when the TCP
+connection fails. Any other failure, an authentication failure or the
+remote command's own status, returns as it came. Unit tests in
+`TestIncusVMSSH` show the retry on a timed-out connection, no retry on an
+authentication failure, and no retry without a knock sequence.
+**Traceability:** pending — `ssh()` does not retry yet.
